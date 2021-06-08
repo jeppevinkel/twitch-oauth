@@ -7,6 +7,8 @@ var cookieSession  = require("cookie-session");
 var passport       = require("passport");
 var twitchStrategy = require("passport-twitch-strategy").Strategy;
 
+const port = 3000;
+
 var app = express();
 
 app.set("views", "./views");
@@ -21,7 +23,7 @@ app.use(passport.initialize());
 passport.use('twitch', new twitchStrategy({
         clientID: config.client.id,
         clientSecret: config.client.secret,
-        callbackURL: "http://localhost:3000/auth/twitch/callback",
+        callbackURL: `http://localhost:${port}/auth/twitch/callback`,
         scope: config.scope
     },
     function(accessToken, refreshToken, profile, done) {
@@ -44,4 +46,5 @@ app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedire
     res.json({accessToken: req.user.accessToken, refreshToken: req.user.refreshToken});
 });
 
-app.listen(3000);
+app.listen(port);
+console.log(`now listening on http://localhost:${port}`)
