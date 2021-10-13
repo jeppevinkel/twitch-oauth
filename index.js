@@ -6,8 +6,9 @@ var cookieParser   = require("cookie-parser");
 var cookieSession  = require("cookie-session");
 var passport       = require("passport");
 var twitchStrategy = require("passport-twitch-strategy").Strategy;
+const { exec } = require("child_process")
 
-const port = 3000;
+const port = 3030;
 
 var app = express();
 
@@ -43,8 +44,15 @@ passport.deserializeUser(function(user, done) {
 app.get("/", passport.authenticate("twitch", {forceVerify: true}));
 app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/" }), function(req, res) {
     // Successful authentication, redirect home.
-    res.json({accessToken: req.user.accessToken, refreshToken: req.user.refreshToken});
+    res.json({
+        accessToken: req.user.accessToken,
+        refreshToken: req.user.refreshToken,
+        clientID: config.client.id,
+        clientSecret: config.client.secret
+    });
 });
 
 app.listen(port);
 console.log(`now listening on http://localhost:${port}`)
+var start = (process.platform === 'darwin'? 'open' : process.platform === 'win32'? 'start' : 'xdg-open');
+exec(`${start} http://localhost:${port}`)
